@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Espace Admin - Recettes Faciles</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background-color: #f4f6f9; }
+    .container { max-width: 700px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    h1, h2 { color: #2c3e50; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+    button { margin-top: 15px; padding: 10px 20px; background-color: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    button:hover { background-color: #219150; }
+    .btn-cancel { background-color: #95a5a6; display: none; }
+    .recette-item { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+    .btn-edit { background-color: #f39c12; margin-right: 5px; }
+    .btn-delete { background-color: #e74c3c; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1 id="form-title">Ajouter une recette</h1>
+
+  <form id="recetteForm">
+    <!-- Champ caché pour savoir si on modifie une recette existante -->
+    <input type="hidden" id="recetteId">
+
+    <label for="titre">Titre de la recette :</label>
+    <input type="text" id="titre" placeholder="Ex: Tarte aux pommes facile" required>
+
+    <label for="ingredients">Ingrédients (séparés par des virgules) :</label>
+    <textarea id="ingredients" rows="3" placeholder="Pommes, Pâte feuilletée, Sucre..." required></textarea>
+
+    <label for="instructions">Instructions / Préparation :</label>
+    <textarea id="instructions" rows="4" placeholder="Éplucher les pommes, préchauffer le four..." required></textarea>
+
+    <label for="youtubeUrl">Lien vidéo YouTube :</label>
+    <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+
+    <button type="submit" id="submitBtn">Enregistrer la recette</button>
+    <button type="button" class="btn-cancel" id="cancelBtn" onclick="annulerModification()">Annuler la modification</button>
+  </form>
+
+  <hr style="margin: 30px 0;">
+
+  <h2>Recettes enregistrées</h2>
+  <div id="listeRecettes"></div>
+</div>
+
+<script>
+  // 1. Convertir l'URL YouTube en URL "embed"
+  function getEmbedUrl(url) {
+    if (!url) return "";
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : "";
+  }
+
+  // 2. Charger les recettes depuis le navigateur (localStorage)
+  function getRecettes() {
+    return JSON.parse(localStorage.getItem('recettes')) || [];
+  }
+
+  function sauvegarderRecettes(recettes) {
+    localStorage.setItem('recettes', JSON.stringify(recettes));
+  }
+
+  // 3. Afficher la liste des recettes
+  function afficherRecettes() {
+    const recettes = getRecettes();
+    const liste = document.getElementById('listeRecettes');
+    liste.innerHTML = '';
+
+    if (recettes.length === 0) {
+      liste.innerHTML = '<p>Aucune recette pour le moment.</p>';
+      return;
+    }
+
+    recettes.forEach((recette, index) => {
+      liste.innerHTML += `
+        <div class="recette-item">
+          <div>
+            <strong>${recette.titre}</strong>
+            ${recette.embedVideo ? ' 🎥 (Vidéo incluse)' : ''}
+          </div>
+          <div>
+            <button class="btn-edit" onclick="preparerModification(${index})">Modifier</button>
+            <button class="btn-delete" onclick="supprimerRecette(${index})">Supprimer</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  // 4. Ajouter ou Enregistrer la modification
+  document.getElementById('recetteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const id = document.getElementById('recetteId').value;
+    const titre = document.getElementById('titre').value;
+    const ingredients = document.getElementById('ingredients').value;
+    const instructions = document.getElementById('instructions').value;
+    const videoUrl = document.getElementById('youtubeUrl').value;
+    const embedVideo = getEmbedUrl(videoUrl);
+
+    let recettes = getRecettes();
+
+    if (id === "") {
+      // AJOUTER une nouvelle recette
+      recettes.push({ titre, ingredients, instructions, embedVideo, videoOriginale: videoUrl });
+    } else {
+      // MODIFIER une recette existante
+      recettes[id] = { titre, ingredients, instructions, embedVideo, videoOriginale: videoUrl };
+    }
+
+    sauvegarderRecettes(recettes);
+    annulerModification();
+    afficherRecettes();
+  });
+
+  // 5. Remplir le formulaire pour modifier
+  window.preparerModification = function(index) {
+    const recettes = getRecettes();
+    const r = recettes[index];
+
+    document.getElementById('recetteId').value = index;
+    document.getElementById('titre').value = r.titre;
+    document.getElementById('ingredients').value = r.ingredients;
+    document.getElementById('instructions').value = r.instructions;
+    document.getElementById('youtubeUrl').value = r.videoOriginale || '';
+
+    document.getElementById('form-title').innerText = "Modifier la recette";
+    document.getElementById('submitBtn').innerText = "Mettre à jour la recette";
+    document.getElementById('cancelBtn').style.display = 'inline-block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 6. Annuler le mode modification
+  window.annulerModification = function() {
+    document.getElementById('recetteForm').reset();
+    document.getElementById('recetteId').value = "";
+    document.getElementById('form-title').innerText = "Ajouter une recette";
+    document.getElementById('submitBtn').innerText = "Enregistrer la recette";
+    document.getElementById('cancelBtn').style.display = 'none';
+  };
+
+  // 7. Supprimer une recette
+  window.supprimerRecette = function(index) {
+    if (confirm("Voulez-vous vraiment supprimer cette recette ?")) {
+      let recettes = getRecettes();
+      recettes.splice(index, 1);
+      sauvegarderRecettes(recettes);
+      afficherRecettes();
+    }
+  };
+
+  // Initialisation au chargement de la page
+  afficherRecettes();
+</script>
+
+</body>
+</html>
