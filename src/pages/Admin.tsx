@@ -750,10 +750,33 @@ export default function Admin() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <Tabs defaultValue="stats">
-          <div className="mb-6 flex items-center justify-between gap-3">
-            <h1 className="font-display text-2xl font-bold">{t.admin.overview}</h1>
-            <TabsList>
+        <Tabs defaultValue="recipes">
+  <div className="mb-6 flex flex-col gap-3">
+    <h1 className="font-display text-2xl font-bold">{t.admin.overview}</h1>
+    <div className="overflow-x-auto pb-2">
+      <TabsList className="flex h-auto flex-wrap gap-1">
+        <TabsTrigger value="recipes">
+          <BookOpen className="me-2 size-4" />
+          {t.admin.tabRecipes}
+        </TabsTrigger>
+        <TabsTrigger value="stats">
+          <BarChart3 className="me-2 size-4" />
+          {t.admin.tabStats}
+        </TabsTrigger>
+        <TabsTrigger value="codes">
+          <Ticket className="me-2 size-4" />
+          {t.admin.tabCodes}
+        </TabsTrigger>
+        <TabsTrigger value="users">
+          <Users className="me-2 size-4" />
+          {t.admin.tabUsers}
+        </TabsTrigger>
+        <TabsTrigger value="posts">
+          <Megaphone className="me-2 size-4" />
+          {t.admin.tabPosts}
+        </TabsTrigger>
+      </TabsList>
+    </div>
               <TabsTrigger value="stats">
                 <BarChart3 className="me-2 size-4" />
                 {t.admin.tabStats}
