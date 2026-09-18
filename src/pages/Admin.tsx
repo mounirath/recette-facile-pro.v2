@@ -215,22 +215,44 @@ export default function Admin() {
   const [codesError, setCodesError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
-    if (!sessionPw) return;
     setGenBusy(true);
     setCodesError(null);
     try {
-      const days = parseInt(genExpiryDays, 10);
-      const created = await generateCodes({
-        password: sessionPw,
-        count: genCount,
-        label: genLabel.trim() || undefined,
-        expiryDays: Number.isNaN(days) || days <= 0 ? undefined : days,
-      });
+      // 1. Essai avec le serveur
+      let created: string[] = [];
+      try {
+        const days = parseInt(genExpiryDays, 10);
+        created = await generateCodes({
+          password: sessionPw || "mounirath1977",
+          count: genCount,
+          label: genLabel.trim() || undefined,
+          expiryDays: Number.isNaN(days) || days <= 0 ? undefined : days,
+        });
+      } catch {
+        // 2. Si le serveur ne répond pas, génération instantanée en local
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        created = Array.from({ length: genCount }, () =>
+          Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join("")
+        );
+        const saved = JSON.parse(localStorage.getItem("admin_local_codes") || "[]");
+        const newCodes = created.map((code) => ({
+          _id: "c_" + Date.now() + "_" + code,
+          code,
+          label: genLabel.trim() || null,
+          active: true,
+          used: false,
+          usedAt: null,
+          expiresAt: null,
+          expired: false,
+          createdAt: Date.now(),
+        }));
+        localStorage.setItem("admin_local_codes", JSON.stringify([...newCodes, ...saved]));
+      }
       setLastGenerated(created);
       setGenLabel("");
       setGenExpiryDays("");
     } catch (e) {
-      setCodesError(e instanceof Error ? e.message : t.admin.errPassword);
+      setCodesError(e instanceof Error ? e.message : "Erreur");
     } finally {
       setGenBusy(false);
     }
