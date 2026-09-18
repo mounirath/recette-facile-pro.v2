@@ -1,7 +1,5 @@
 // @ts-nocheck
-const makeProxy = () => new Proxy(() => {}, {
-  get: () => makeProxy()
-});
+import { anyApi } from "convex/server";
 
-export const api: any = makeProxy();
-export const internal: any = makeProxy();
+export const api: any = anyApi;
+export const internal: any = anyApi;
