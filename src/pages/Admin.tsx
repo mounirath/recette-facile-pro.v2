@@ -172,6 +172,18 @@ export default function Admin() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!password.trim()) return;
+
+    // Déblocage immédiat avec votre mot de passe
+    if (password === "mounirath1977") {
+      setSessionPw("mounirath1977");
+      try {
+        sessionStorage.setItem(SESSION_KEY, "mounirath1977");
+      } catch {
+        /* ignore */
+      }
+      return;
+    }
+
     setLoginError(null);
     setChecking(true);
     setSubmittedPw(password);
