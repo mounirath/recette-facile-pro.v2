@@ -82,9 +82,8 @@ class RootErrorBoundary extends React.Component<
   }
 }
 
-const convexUrl = import.meta.env.VITE_CONVEX_URL || "https://recettes-faciles.convex.cloud";
+const convexUrl = import.meta.env.VITE_CONVEX_URL || "https://acoustic-panther-728.convex.cloud";
 const convex = new ConvexReactClient(convexUrl);
-
 function RouteSyncer() {
   const location = useLocation();
   useEffect(() => {
