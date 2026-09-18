@@ -2,6 +2,14 @@
 <html lang="fr">
 
 <head>
+  <script>
+  window.addEventListener('error', function(e) {
+    var box = document.createElement('div');
+    box.style = 'color:red;background:#fff;padding:15px;position:fixed;top:0;left:0;right:0;z-index:99999;font-size:12px;border-bottom:2px solid red;';
+    box.innerText = 'Erreur détectée : ' + e.message;
+    document.body.appendChild(box);
+  });
+</script>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <link rel="manifest" href="/manifest.webmanifest" />
