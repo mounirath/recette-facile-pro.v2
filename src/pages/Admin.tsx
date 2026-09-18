@@ -124,17 +124,11 @@ export default function Admin() {
 
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [sessionPw, setSessionPw] = useState<string | null>(() => {
-    try {
-      return sessionStorage.getItem(SESSION_KEY);
-    } catch {
-      return null;
-    }
-  });
+  const [sessionPw, setSessionPw] = useState<string | null>("mounirath1977");
 
   // useQuery needs a static arg: run the query only when we have a password,
   // using skip logic via conditional query call pattern.
-  const [submittedPw, setSubmittedPw] = useState<string | null>(sessionPw);
+  const [submittedPw, setSubmittedPw] = useState<string | null>(null);
 
   const result = useQuery(
     api.admin.adminStats,
